@@ -2,17 +2,15 @@
  * @name 我的聚合音源
  * @description 聚合多个API，网易/QQ/酷我/酷狗/咪咕，多链路回退
  * @version 1.0.0
- * @author yourname
- * @update_url https://raw.githubusercontent.com/yourname/my-lx-source/main/source.json
+ * @author maomao1714
+ * @update_url https://raw.githubusercontent.com/maomao1714/my-lx-source/main/source.json
  */
 
 'use strict';
 
-// ========== 修改这里：把 yourname 换成你的 GitHub 用户名 ==========
 const VERSION = '1.0.0';
-const UPDATE_CHECK_URL = 'https://raw.githubusercontent.com/yourname/my-lx-source/main/source.json';
+const UPDATE_CHECK_URL = 'https://raw.githubusercontent.com/maomao1714/my-lx-source/main/source.json';
 
-// ========== API 端点 ==========
 const APIS = {
   XINGHAI: 'https://music-api.gdstudio.xyz/api.php',
   SUYIN_QQ: 'https://oiapi.net/api/QQ_Music',
@@ -20,7 +18,6 @@ const APIS = {
   SUYIN_KUWO: 'https://oiapi.net/api/Kuwo',
 };
 
-// ========== 各平台支持音质 ==========
 const QUALITIES = {
   wy: ['24bit', 'flac', '320k', '192k', '128k'],
   tx: ['24bit', 'flac', '320k', '192k', '128k'],
@@ -29,7 +26,6 @@ const QUALITIES = {
   mg: ['flac', '320k', '128k'],
 };
 
-// ========== 音质映射 ==========
 const BR_MAP = {
   '128k': '128',
   '192k': '192',
@@ -54,7 +50,7 @@ const PLATFORM_MAP = {
   mg: 'migu',
 };
 
-// ========== 缓存 ==========
+// 缓存
 const cache = new Map();
 const CACHE_TTL = 6 * 60 * 60 * 1000;
 const CACHE_MAX = 300;
@@ -76,7 +72,7 @@ function cacheSet(key, url) {
   cache.set(key, { url, ts: Date.now() });
 }
 
-// ========== 网络请求 ==========
+// 网络请求
 const { EVENT_NAMES, request, on, send } = globalThis.lx;
 
 function httpGet(url, params, timeout) {
@@ -99,8 +95,7 @@ function httpGet(url, params, timeout) {
   });
 }
 
-// ========== 各 API 解析 ==========
-
+// 星海API（支持全平台）
 function tryXinghai(platform, songInfo, quality) {
   var pname = PLATFORM_MAP[platform];
   if (!pname) return Promise.resolve(null);
@@ -116,6 +111,7 @@ function tryXinghai(platform, songInfo, quality) {
   }).catch(function() { return null; });
 }
 
+// 溯音QQ（仅tx）
 function trySuyinQQ(platform, songInfo, quality) {
   if (platform !== 'tx') return Promise.resolve(null);
   return httpGet(APIS.SUYIN_QQ, {
@@ -129,6 +125,7 @@ function trySuyinQQ(platform, songInfo, quality) {
   }).catch(function() { return null; });
 }
 
+// 溯音163（仅wy）
 function trySuyin163(platform, songInfo, quality) {
   if (platform !== 'wy') return Promise.resolve(null);
   var level = quality === 'flac' ? 3 : quality === '320k' ? 2 : 1;
@@ -143,6 +140,7 @@ function trySuyin163(platform, songInfo, quality) {
   }).catch(function() { return null; });
 }
 
+// 溯音酷我（仅kw）
 function trySuyinKuwo(platform, songInfo, quality) {
   if (platform !== 'kw') return Promise.resolve(null);
   return httpGet(APIS.SUYIN_KUWO, {
@@ -157,7 +155,7 @@ function trySuyinKuwo(platform, songInfo, quality) {
   }).catch(function() { return null; });
 }
 
-// ========== 回退链 ==========
+// 回退链
 var FALLBACK_CHAINS = {
   wy: [tryXinghai, trySuyin163],
   tx: [tryXinghai, trySuyinQQ],
@@ -191,7 +189,7 @@ function getUrl(platform, songInfo, quality) {
   return tryNext();
 }
 
-// ========== 版本检测 ==========
+// 版本检测
 function compareVersion(a, b) {
   var pa = a.split('.').map(Number);
   var pb = b.split('.').map(Number);
@@ -215,7 +213,7 @@ function checkUpdate() {
   }).catch(function() {});
 }
 
-// ========== 注册到 LX Music ==========
+// 注册到 LX Music
 send(EVENT_NAMES.inited, {
   sources: {
     wy: { name: '网易云', type: 'music', actions: ['musicUrl'], qualitys: QUALITIES.wy },
