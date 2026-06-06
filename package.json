@@ -1,0 +1,9 @@
+{
+  "name": "my-lx-source",
+  "version": "1.0.0",
+  "description": "LX Music 自用音源",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "devDependencies": {}
+}
