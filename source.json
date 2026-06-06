@@ -1,0 +1,7 @@
+{
+  "name": "我的聚合音源",
+  "version": "1.0.0",
+  "desc": "初始版本",
+  "updateUrl": "https://raw.githubusercontent.com/yourname/my-lx-source/main/src/index.js",
+  "author": "yourname"
+}
